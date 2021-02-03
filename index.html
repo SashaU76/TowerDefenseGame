@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TowerDefense</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id=start><button id=startBtn onclick="start()">Start</button></div>
+    <div id='nextday1'><div id='nextday'>on next day</div></div>
+    <button id="looseBtn" onclick="window.location.reload()">I can better</button>
+    <canvas id="canvas1"></canvas>
+    <div class="briffing">
+        <canvas id="canvas2"></canvas>
+        <canvas id="canvas3"></canvas>
+    </div>
+    <div id="fogWrapper"><div class="fog" id="fog"><div></div></div></div>
+    
+    <div id='audio' class="slideContainer">
+        <input type="range" min="1" max="100" value="30" class="slider" id="myRange">
+        <button class='playBtn' onclick="toggleMusic()">&#9658;</button>
+        <button class='playBtn' onclick="changeSong()">&#9193;</button>
+    </div>
+    
+    <script src="./index.js"></script>
+</body>
+
+</html>

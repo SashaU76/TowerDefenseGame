@@ -109,10 +109,10 @@ var builSound = new Audio();
 builSound.src ="audio/building.mp3";
 var orcLaugh = new Audio();
 orcLaugh.src ="audio/orcLaugh.mp3";
-orcLaugh.volume=0.4
+orcLaugh.volume=0.6
 var retreat = new Audio();
 retreat.src ="audio/retreat.mp3";
-retreat.volume=0.4
+retreat.volume=0.3
 var runAway = new Audio();
 runAway.src ="audio/runAway.mp3";
 
@@ -231,7 +231,7 @@ function handleProjectiles(){
             if(enemies[j] && projectiles[i] && collisian(enemies[j], projectiles[i])){
                 enemies[j].health -= projectiles[i].power
                 orkCrys[Math.floor(Math.random()*orkCrys.length)].play()
-                orkCry2.volume=0.3,orkCry.volume=0.3,orkCry3.volume=0.3,orkCry4.volume=0.3
+                orkCry2.volume=0.25,orkCry.volume=0.25,orkCry3.volume=0.25,orkCry4.volume=0.25
                 projectiles.splice(i,1)
                 i--
             }

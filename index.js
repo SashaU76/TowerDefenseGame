@@ -109,7 +109,7 @@ var builSound = new Audio();
 builSound.src ="audio/building.mp3";
 var orcLaugh = new Audio();
 orcLaugh.src ="audio/orcLaugh.mp3";
-orcLaugh.volume=0.6
+orcLaugh.volume=0.4
 var retreat = new Audio();
 retreat.src ="audio/retreat.mp3";
 retreat.volume=0.3
@@ -543,7 +543,10 @@ function handelGameStatus(){
         ctx.font = '80px Aldrich'
         ctx.fillText('Level complite', canvas.width/2-250,canvas.height/2)
     }
-    if(score>1000){speedMod=true, orcLaugh.play()}
+    let flag
+    if(score>1000){
+        speedMod=true
+        if(flag) orcLaugh.play(), flag=false}
     ctx.shadowColor = "white";
         ctx.shadowBlur=2;
         ctx.lineWidth = 2

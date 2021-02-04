@@ -543,7 +543,7 @@ function handelGameStatus(){
         ctx.font = '80px Aldrich'
         ctx.fillText('Level complite', canvas.width/2-250,canvas.height/2)
     }
-    if(score>1000){speedMod=true, orcLaugh.play}
+    if(score>1000){speedMod=true, orcLaugh.play()}
     ctx.shadowColor = "white";
         ctx.shadowBlur=2;
         ctx.lineWidth = 2

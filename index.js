@@ -21,6 +21,8 @@ let activeMenuCell=undefined
 let sliderVisible=false
 let gamePaused=true
 let speedMod=false
+let flag=true
+
 
 const gameGrid = []
 const headerGrid = []
@@ -109,12 +111,15 @@ var builSound = new Audio();
 builSound.src ="audio/building.mp3";
 var orcLaugh = new Audio();
 orcLaugh.src ="audio/orcLaugh.mp3";
-orcLaugh.volume=0.4
+orcLaugh.volume=0.2
 var retreat = new Audio();
 retreat.src ="audio/retreat.mp3";
-retreat.volume=0.3
+retreat.volume=0.2
 var runAway = new Audio();
 runAway.src ="audio/runAway.mp3";
+var buildingFall = new Audio();
+buildingFall.src ="audio/buildingFall.mp3";
+buildingFall.volume=0.3
 
 const orkCrys=[orkCry, orkCry2, orkCry3, orkCry4]
 
@@ -134,11 +139,7 @@ canvas.addEventListener('mousemove', function(e){
     mouse.x = e.x - canvasPosition.left;
     mouse.y = e.y - canvasPosition.top;
 })
-/* //положение тумана
-let fogWrapper = document.getElementById('fogWrapper')
-    fogWrapper.style.left=canvasPosition.x
-    fogWrapper.style.top=canvasPosition.y
- */
+
 //game board
 const controlsBar ={
     width: canvas.width,
@@ -228,7 +229,7 @@ function handleProjectiles(){
         projectiles[i].update()
         projectiles[i].draw()
         for(let j = 0; j < enemies.length; j++){
-            if(enemies[j] && projectiles[i] && collisian(enemies[j], projectiles[i])){
+            if(enemies[j] && projectiles[i]&& enemies[j].death==false && collisian(enemies[j], projectiles[i])){
                 enemies[j].health -= projectiles[i].power
                 orkCrys[Math.floor(Math.random()*orkCrys.length)].play()
                 orkCry2.volume=0.25,orkCry.volume=0.25,orkCry3.volume=0.25,orkCry4.volume=0.25
@@ -307,9 +308,6 @@ class Defender {
 canvas.addEventListener('click', function(e){
     const gridPositionX = mouse.x - (mouse.x % cellSize);
     const gridPositionY = mouse.y - (mouse.y % cellSize);
-    console.log(buildings);
-    console.log(gridPositionX+ 'GP X');
-    console.log(gridPositionY+ 'GP Y');
     //if(gridPositionY < cellSize) return;
     let greaterArray= defenders.length>=buildings.length ? defenders.length : buildings.length
     for(let i=0; i < greaterArray; i++){
@@ -329,7 +327,7 @@ canvas.addEventListener('click', function(e){
     }
     if(activeMenuCell===0){  // если выбран лучник
         let defenderCost = 120;
-        if(numberOfResources >= defenderCost && mouse.y>cellSize+adjust && mouse.y<900 
+        if(numberOfResources >= defenderCost && mouse.y>cellSize+adjust && mouse.y<800 
             && mouse.x<canvas.width-cellLimiter*cellSize){
             defenders.push(new Defender(gridPositionX, gridPositionY+100,activeMenuCell))
             numberOfResources -=defenderCost
@@ -337,7 +335,7 @@ canvas.addEventListener('click', function(e){
     }
     if(activeMenuCell===1){  // если выбран воин
         let defenderCost = 180;
-        if(numberOfResources >= defenderCost && mouse.y>cellSize+adjust && mouse.y<900 
+        if(numberOfResources >= defenderCost && mouse.y>cellSize+adjust && mouse.y<800 
             && mouse.x<canvas.width-cellLimiter*cellSize){
             defenders.push(new Defender(gridPositionX, gridPositionY+100,activeMenuCell))
             numberOfResources -=defenderCost
@@ -376,15 +374,15 @@ function handleDefenders(){
             defenders[i].shooting=false
         }
         for(let j =0; j<enemies.length; j++){
-            if(defenders[i] && collisian(defenders[i], enemies[j])){
+            if(defenders[i]&& enemies[j].death==false && collisian(defenders[i], enemies[j])){
                 enemies[j].movement=0
                 defenders[i].health -= 0.2;
                 if(defenders[i].type==='warrior') enemies[j].health -=0.2
                 defenders[i].fight=true
                 enemies[j].fight=true
                 boi.play()
-                if(enemies[j].health<=0)defenders[i].fight=false
             }
+            if(enemies[j].health<=0)defenders[i].fight=false
             if(defenders[i] && defenders[i].health <=0){
                 defenders.splice(i, 1)
                 i--;
@@ -409,11 +407,15 @@ class Enemy {
         this.fight=false;
         this.frameHeight=299;
         this.frame=23;
+        this.death= false
+        this.flag=false
         this.type= enemyTypes[Math.floor(Math.random()*enemyTypes.length)]
         if(this.type==='orc')this.health = 300, this.frame=0, this.frameHeight=275;
     }
     update(){
-        (score>= winningScore) ?this.x += this.movement*1.7 : this.x -= this.movement;
+        if(!this.death){
+            (score>= winningScore) ?this.x += this.movement*1.7 : this.x -= this.movement;
+        }
         if(frame % 3 ==0){
             this.frame++
         }
@@ -425,18 +427,20 @@ class Enemy {
         ctx.fillRect(this.x, this.y, this.width, this.height) */
         
         if(this.type==='goblin') {  //goblin
-        this.fight===false ? ctx.drawImage(goblin, 50, this.frame*this.frameHeight, 235, 300, this.x-20, this.y, 70,90)
-        :  ctx.drawImage(goblin, 50, (this.frame+20)*this.frameHeight, 275, 300, this.x-40, this.y, 70,90)//299
+            this.fight===false ? ctx.drawImage(goblin, 50, this.frame*this.frameHeight, 235, 300, this.x-20, this.y, 70,90)
+            :  ctx.drawImage(goblin, 50, (this.frame+20)*this.frameHeight, 275, 300, this.x-40, this.y, 70,90)//299
         }
         if(this.type==='orc') {  //orc
             this.fight===false? ctx.drawImage(ork, 50, (this.frame+40)*this.frameHeight, 235, 300, this.x-20, this.y+7, 80,90)
-        :  ctx.drawImage(ork, 50, this.frame*this.frameHeight, 265, 300, this.x-40, this.y+7, 80,90); 
+            :  ctx.drawImage(ork, 50, this.frame*this.frameHeight, 265, 300, this.x-40, this.y+7, 80,90); 
         }     
         
         //health bar
-        ctx.fillStyle= 'black';
-        ctx.font = '20px Aldrich';
-        ctx.fillText(Math.floor(this.health), this.x+10, this.y+20)
+        if(!this.death){
+            ctx.fillStyle= 'black';
+            ctx.font = '20px Aldrich';
+            ctx.fillText(Math.floor(this.health), this.x+10, this.y+20)
+        }
     }
 }
 
@@ -444,17 +448,30 @@ function handleEnimies(){
     for(let i=0; i<enemies.length; i++){
         enemies[i].update()
         enemies[i].draw()
-        if(enemies[i].type==='goblin' && enemies[i].frame===40 && enemies[i].fight)enemies[i].frame=23, enemies[i].fight=false, enemies[i].movement=enemies[i].speed
-        if(enemies[i].type==='goblin' && enemies[i].frame===42 && !enemies[i].fight)enemies[i].frame=23
-        if(enemies[i].type==='orc' && enemies[i].frame===19)enemies[i].frame=0, enemies[i].fight=false, enemies[i].movement=enemies[i].speed
+        if(!enemies[i].death){
+            if(enemies[i].type==='goblin' && enemies[i].frame===40 && enemies[i].fight)enemies[i].frame=23, enemies[i].fight=false, enemies[i].movement=enemies[i].speed
+            if(enemies[i].type==='goblin' && enemies[i].frame===42 && !enemies[i].fight)enemies[i].frame=23
+            if(enemies[i].type==='orc' && enemies[i].frame===19)enemies[i].frame=0, enemies[i].fight=false, enemies[i].movement=enemies[i].speed
+        }else{
+            if(enemies[i].type==='goblin'&& enemies[i].flag==false&& enemies[i].fight)enemies[i].frame=-9, enemies[i].flag=true
+            if(enemies[i].type==='goblin'&& enemies[i].flag==false&& !enemies[i].fight)enemies[i].frame=11, enemies[i].flag=true
+            if(enemies[i].type==='orc'&& enemies[i].flag==false && !enemies[i].fight)enemies[i].frame=-12, enemies[i].flag=true
+            if(enemies[i].type==='orc'&& enemies[i].flag==false && enemies[i].fight)enemies[i].frame=28, enemies[i].flag=true
+        }
+        
         if(enemies[i] && enemies[i].health <=0){
-            let gainedResources = enemies[i].maxHealth/5
-            numberOfResources+=gainedResources
-            score+=gainedResources
-            const findThisPosition = enemyPosition.indexOf(enemies[i].y+adjust)
-            enemyPosition.splice(findThisPosition,1)
-            enemies.splice(i,1)
-            i--
+            enemies[i].death=true
+            if(enemies[i].type==='goblin'&&enemies[i].frame==21 && !enemies[i].fight ||enemies[i].type==='goblin'&&enemies[i].frame==1 && enemies[i].fight
+            ||enemies[i].type==='orc'&& !enemies[i].fight &&enemies[i].frame==-2
+            ||enemies[i].type==='orc'&& enemies[i].fight &&enemies[i].frame==38){
+                let gainedResources = enemies[i].maxHealth/5
+                const findThisPosition = enemyPosition.indexOf(enemies[i].y+adjust)
+                numberOfResources+=gainedResources
+                score+=gainedResources
+                enemyPosition.splice(findThisPosition,1)
+                enemies.splice(i,1)
+                i--
+            }
             boi.pause()
         }
         if(enemies[i] && enemies[i].x < 0){
@@ -463,7 +480,6 @@ function handleEnimies(){
     }
     if(frame % enemiesInterval === 0){
         let verticalPosition = Math.floor(Math.random()*6+1)*cellSize+200
-        console.log(verticalPosition);
         enemies.push(new Enemy(verticalPosition))
         enemyPosition.push(verticalPosition)
         if(enemiesInterval > 100) enemiesInterval -=20;
@@ -537,16 +553,15 @@ function handelGameStatus(){
         goblin.src = 'img/characters/css_sprites.png'
         ork.src = 'img/characters/enemy2.png'
         retreat.play(), runAway.play()
-        setTimeout(() => { gamePaused=true },18000);
+        setTimeout(() => { gamePaused=true },16000);
         
         ctx.fillStyle = 'black'
         ctx.font = '80px Aldrich'
         ctx.fillText('Level complite', canvas.width/2-250,canvas.height/2)
     }
-    let flag
-    if(score>1000){
+    if(score>1000&&flag){
         speedMod=true
-        if(flag) orcLaugh.play(), flag=false}
+        orcLaugh.play(), flag=false}
     ctx.shadowColor = "white";
         ctx.shadowBlur=2;
         ctx.lineWidth = 2
@@ -609,7 +624,7 @@ function header(){
     //
     ctx.drawImage(tree, 0, 0, 218, 172, 570, 490, 218*0.7,172*0.7)
     ctx.drawImage(tree, 0, 0, 218, 172, 700, 290, 218*0.7,172*0.7)
-    ctx.drawImage(tree, 0, 0, 218, 172, 1240, 200, 218*0.7,172*0.7)
+    ctx.drawImage(tree, 0, 0, 218, 172, 1240, 190, 218*0.7,172*0.7)
     ctx.drawImage(stone, 0, 0, 218, 172, 1040, 640, 218*0.7,172*0.7)
     ctx.drawImage(tree3, 0, 0, 224, 281, 840, 675, 224*0.4, 281*0.55)
     ctx.drawImage(tree, 0, 0, 218, 172, 1340, 590, 218*0.7,172*0.7)
@@ -617,7 +632,7 @@ function header(){
     ctx.drawImage(greenery, 0, 0, 85, 72, 440, 470, 85*0.6, 72*0.6)
     ctx.drawImage(greenery, 0, 0, 85, 72, 1240, 470, 85*0.6, 72*0.6)
     ctx.drawImage(greenery, 0, 0, 85, 72, 340, 370, 85*0.7, 72*0.8)
-    ctx.drawImage(greenery, 0, 0, 85, 72, 240, 670, 85*0.5, 72*0.7)
+    ctx.drawImage(greenery, 0, 0, 85, 72, 240, 665, 85*0.5, 72*0.7)
 }
 
 
@@ -629,8 +644,6 @@ window.addEventListener('resize', function(){
     audioplayer.style.top = `${audioplayerPositionTop}px`;
     /* fogWrapper.style.left = `${audioplayerPositionleft}px`;
     fogWrapper.style.top=canvasPosition.y
-    console.log(canvasPosition.right+ 'canvas');
-    console.log(fogWrapper.getBoundingClientRect());
     */
 }) 
 
@@ -664,13 +677,14 @@ function handleBuildings(){
     for(let i = 0; i < buildings.length; i++){
         buildings[i].draw()
         for(let j =0; j<enemies.length; j++){
-            if(buildings[i] && collisian(buildings[i], enemies[j])){
+            if(buildings[i]&& enemies[j].death==false && collisian(buildings[i], enemies[j])){
                 enemies[j].movement = 0
                 buildings[i].health -= 0.2;
                 enemies[j].fight=true
                 boi.play()
             }
             if(buildings[i] && buildings[i].health <=0){
+                buildingFall.play()
                 buildings.splice(i, 1)
                 i--;
                 enemies[j].fight=false
@@ -729,7 +743,6 @@ function toggleMusic(){
 }
 function toggleSlider(){
     sliderVisible=!sliderVisible
-    console.log(sliderVisible);
     if(!sliderVisible)audioplayer.style.visibility='hidden'
     else audioplayer.style.visibility='visible'
 }
@@ -807,7 +820,6 @@ function animate2(){
     if(brifingFrames%5 ==0){
         fogPosition2=fogPosition
         mageFrame++
-        console.log(mageFrame);
         if(act5 &&mageFrame==15||secondDialog &&mageFrame==15)mageFrame=50
         if(mageFrame>=90)mageFrame=0
     }
@@ -827,7 +839,7 @@ function start(){
     animate2();
 }
 
-function mage(){
+function mage(){ //функция называется маг, но отвечает за изменение сцены
     setTimeout(() => { if(!skipBriffing)act1=true },2000);
     setTimeout(() => { act1=false},5000);
     setTimeout(() => { if(!skipBriffing)act2=true },8000);

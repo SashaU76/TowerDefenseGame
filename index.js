@@ -116,7 +116,7 @@ var retreat = new Audio();
 retreat.src ="audio/retreat.mp3";
 retreat.volume=0.2
 var runAway = new Audio();
-runAway.src ="audio/runAway.mp3";
+runAway.src ="audio/runAway2.mp3";
 var buildingFall = new Audio();
 buildingFall.src ="audio/buildingFall.mp3";
 buildingFall.volume=0.3
@@ -232,7 +232,7 @@ function handleProjectiles(){
             if(enemies[j] && projectiles[i]&& enemies[j].death==false && collisian(enemies[j], projectiles[i])){
                 enemies[j].health -= projectiles[i].power
                 orkCrys[Math.floor(Math.random()*orkCrys.length)].play()
-                orkCry2.volume=0.25,orkCry.volume=0.25,orkCry3.volume=0.25,orkCry4.volume=0.25
+                orkCry2.volume=0.2,orkCry.volume=0.2,orkCry3.volume=0.2,orkCry4.volume=0.2
                 projectiles.splice(i,1)
                 i--
             }
@@ -402,7 +402,7 @@ class Enemy {
         this.height = cellSize;
         this.speed = speedMod? Math.random()*0.2+0.7 :Math.random()*0.2+0.4;
         this.movement = this.speed;
-        this.health = 200;
+        this.health = 180;
         this.maxHealth = this.health;
         this.fight=false;
         this.frameHeight=299;
@@ -410,7 +410,7 @@ class Enemy {
         this.death= false
         this.flag=false
         this.type= enemyTypes[Math.floor(Math.random()*enemyTypes.length)]
-        if(this.type==='orc')this.health = 300, this.frame=0, this.frameHeight=275;
+        if(this.type==='orc')this.health = 280, this.frame=0, this.frameHeight=275;
     }
     update(){
         if(!this.death){
@@ -558,8 +558,9 @@ function handelGameStatus(){
         ctx.fillStyle = 'black'
         ctx.font = '80px Aldrich'
         ctx.fillText('Level complite', canvas.width/2-250,canvas.height/2)
+        document.getElementById("looseBtn").style.visibility='visible'
     }
-    if(score>1000&&flag){
+    if(score>1400&&flag){
         speedMod=true
         orcLaugh.play(), flag=false}
     ctx.shadowColor = "white";
@@ -631,7 +632,7 @@ function header(){
     ctx.drawImage(tree2, 0, 0, 206, 367, 930, 370, 206*0.45, 367*0.4)
     ctx.drawImage(greenery, 0, 0, 85, 72, 440, 470, 85*0.6, 72*0.6)
     ctx.drawImage(greenery, 0, 0, 85, 72, 1240, 470, 85*0.6, 72*0.6)
-    ctx.drawImage(greenery, 0, 0, 85, 72, 340, 370, 85*0.7, 72*0.8)
+    ctx.drawImage(greenery, 0, 0, 85, 72, 340, 350, 85*0.7, 72*0.8)
     ctx.drawImage(greenery, 0, 0, 85, 72, 240, 665, 85*0.5, 72*0.7)
 }
 
@@ -760,11 +761,12 @@ canvas3.width=1500;
 canvas3.height=940;
 let endBriffing = false
 let firstClick=true
-canvas3.addEventListener('click', function(){
+
+function skipBrif(){
     if(firstClick){
-        ctx3.clearRect(0,0, canvas2.width, canvas2.height)
-        skipBriffing=true
-        act5=false, act4=false,act3=false,act2=false,act1=false
+    skipBriffing=true
+    ctx3.clearRect(0,0, canvas2.width, canvas2.height)
+    act5=false, act4=false,act3=false,act2=false,act1=false
         document.getElementById('nextday1').style.visibility='visible'
         setTimeout(() => { 
                 document.getElementById('nextday1').style.visibility='hidden'
@@ -776,6 +778,7 @@ canvas3.addEventListener('click', function(){
         setTimeout(() => { act7=true },5000);
         setTimeout(() => { typeText2() },6000);
         firstClick=false
+        //setTimeout(() => { skipBrif() },26000);
     }else{
         endBriffing = true
         ctx3.clearRect(0,0, canvas2.width, canvas2.height)
@@ -784,7 +787,12 @@ canvas3.addEventListener('click', function(){
         animate();
         canvas2.remove()
         canvas3.remove()
+        document.getElementById('skipDiv').style.visibility='hidden'
     }
+    document.getElementById('skipDiv').style.visibility='hidden'
+}
+canvas3.addEventListener('click', function(){
+        document.getElementById('skipDiv').style.visibility='visible'
 })
 let secondDialog=false
 let brifingFrames=0
@@ -849,7 +857,7 @@ function mage(){ //функция называется маг, но отвеча
     setTimeout(() => { if(!skipBriffing)act4=true},21000);
     setTimeout(() => { if(!skipBriffing)act5=true},23000);
     setTimeout(() => { if(act5)typeText()},24000);
-    
+    //setTimeout(() => { if(act5)skipBrif()},41500);
 }
 
 function typeOut(str, a,b,c, g) {
@@ -878,13 +886,13 @@ function typeOut(str, a,b,c, g) {
                 clearInterval($_inter);
             }
             if(!firstClick && !secondDialog) return ctx3.clearRect(0,0, canvas2.width, canvas2.height), clearInterval($_inter);
-        }, 85);
+        }, 68);
     
 }
 function typeText() {
     ctx3.fillStyle = '#000000';
     ctx3.font = '24px Yusei Magic';
-    var str = `Your Highness ...                    I've just had some disturbing reports... \n The Orcs army has appearance at the borders.\n Tomorrow they will be on South Bridge. \n We need to hurry. `;
+    var str = `Your Highness ...                    I've just had some disturbing reports... \n The Orcs army has appeared at the borders. \n Tomorrow they will be on South Bridge. \n We need to hurry. `;
     typeOut(str);
 };
 function typeText2() {
@@ -895,12 +903,13 @@ function typeText2() {
 }
 
 
-//clouds
 let cloudPos=0
 let cloudInitialPos=Math.random()*1000
+
 function clouds(){
     if(frame%10==0)cloudPos+=0.3
     if(cloudPos>canvas2.width)cloudPos=0
     ctx.drawImage(cloud3, 0, 0, 1920, 1047, cloudInitialPos-cloudPos, 0, canvas2.width, controlsBar.height-20)
     ctx.drawImage(cloud2, 0, 0, 1920, 1047, canvas2.width-cloudPos, 0, canvas2.width, controlsBar.height-20)
 }
+

@@ -14,14 +14,17 @@ body {
 }
 #startBtn {
   height: 100px;
-  width: 100px;
+  width: 300px;
   border-radius: 30%;
-  font-size: 25px;
+  font-size: 40px;
   display: block;
   position: relative;
   border: 1px solid white;
   margin: 0 auto;
   top: 50%;
+  background: none;
+  color: #ffffff;
+  font-family: "Yusei Magic";
 }
 #canvas1 {
   margin-top: 10px;
@@ -105,6 +108,18 @@ body {
   background-size: 100% 100%;
   z-index: 10;
 }
+#canvas4 {
+  margin-top: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3000px;
+  height: 940px;
+  background: transparent;
+  background-size: 100% 100%;
+  z-index: 9;
+}
 #nextday1 {
   top: 0;
   background: black;
@@ -126,17 +141,32 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, +150%);
-  font-size: 25px;
-  width: 180px;
-  height: 40px;
+  transform: translate(-50%, +250%);
+  font-size: 30px;
+  width: 280px;
+  height: 70px;
   vertical-align: middle;
   align-items: center;
   justify-content: center;
   z-index: 50;
-  border-radius: 20%;
-  background: linear-gradient(#cbe9a0, #a1c059);
-  border: none;
+  /* background: linear-gradient(#cbe9a0, #a1c059); */
   font-family: "Yusei Magic", sans-serif;
   visibility: hidden;
+  text-shadow: 2px white;
+}
+#skipDiv {
+  height: 70px;
+  width: 180px;
+  font-size: 35px;
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background: none;
+  color: #ffffff;
+  font-family: "Yusei Magic";
+  text-align: center;
+  visibility: hidden;
+  cursor: pointer;
+  z-index: 99;
 }

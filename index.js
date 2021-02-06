@@ -159,10 +159,10 @@ buildingFall.src ="audio/buildingFall.mp3";
 buildingFall.volume=0.3
 var electro = new Audio();
 electro.src ="audio/electro.mp3";
-electro.volume=0.2
+electro.volume=0.1
 var zaklinanie = new Audio();
 zaklinanie.src ="audio/zaklinanie.mp3";
-zaklinanie.volume=0.4
+zaklinanie.volume=0.1
 const orkCrys=[orkCry, orkCry2, orkCry3, orkCry4]
 
 //mouse

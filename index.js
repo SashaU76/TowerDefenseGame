@@ -46,7 +46,7 @@ function initialState(){
     enemyPosition.length = 0
     resourses.length = 0
     casts.length=0
-    startAnimating(60)
+    startAnimating(50)
     document.getElementById('looseBtn').style.visibility='hidden'
     goblin.src = 'img/characters/css_sprites2.png'
     ork.src = 'img/characters/enemy22.png'
@@ -955,7 +955,7 @@ function skipBrif(){
         ctx3.clearRect(0,0, canvas2.width, canvas2.height)
         ctx2.clearRect(0,0, canvas2.width, canvas2.height)
         gamePaused=false
-        startAnimating(60);
+        startAnimating(50);
         canvas2.remove()
         canvas3.remove()
         document.getElementById('skipDiv').style.visibility='hidden'

@@ -3,6 +3,7 @@ body {
   font-family: "Yusei Magic", sans-serif;
   font-size: 28px;
   overflow: hidden;
+  box-sizing: border-box;
 }
 #start {
   position: relative;
@@ -141,7 +142,7 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, +250%);
+  transform: translate(-50%, +100%);
   font-size: 30px;
   width: 280px;
   height: 70px;
@@ -150,9 +151,11 @@ body {
   justify-content: center;
   z-index: 50;
   /* background: linear-gradient(#cbe9a0, #a1c059); */
-  font-family: "Yusei Magic", sans-serif;
+  font-family: "Aldrich", sans-serif;
   visibility: hidden;
   text-shadow: 2px white;
+  background: rgba(100, 185, 150, 0.6);
+  border: none;
 }
 #skipDiv {
   height: 70px;
@@ -169,4 +172,50 @@ body {
   visibility: hidden;
   cursor: pointer;
   z-index: 99;
+}
+#buildings {
+  background: rgba(100, 150, 185, 0.6);
+  position: absolute;
+  top: 40%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  height: 330px;
+  width: 410px;
+  z-index: 100;
+  padding: 20px;
+  text-align: center;
+  border-radius: 5%;
+  font-family: "Aldrich";
+  visibility: hidden;
+}
+.buildingImg {
+  width: 100px;
+  height: 100px; /* 
+  background: center, no-repeat, cover; */
+  padding: 10px;
+  display: inline;
+  float: left;
+  transform: translateY(-10px);
+}
+/* #tower {
+  width: 150px;
+  height: 150px;
+} */
+.imgText {
+  display: inline;
+  font-size: 22px;
+  text-align: center;
+  padding: 15px;
+  margin-top: 30px;
+}
+#buildingDiv {
+  margin: 10px;
+  display: block;
+  height: 130px;
+  border-radius: 5%;
+  padding-top: 19px;
+}
+#buildingDiv:hover {
+  background: rgba(100, 150, 185, 0.8);
+  border: 1px solid black;
 }

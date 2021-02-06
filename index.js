@@ -7,6 +7,7 @@ canvas.height=940;
 
 
 //global variables
+
 const cellSize = 100
 const cellGap = 3
 let frame=0
@@ -16,12 +17,40 @@ let enemiesInterval=600
 let gameOver = false
 let winningScore = 5000
 let adjust=100
-let cellLimiter=3
+let cellLimiter=5
 let activeMenuCell=undefined
 let sliderVisible=false
 let gamePaused=true
 let speedMod=false
 let flag=true
+let isMage=false
+let buildingType, towers, houses
+
+function initialState(){
+    frame=0
+    score=0
+    numberOfResources=900
+    enemiesInterval=600
+    gameOver = false
+    winningScore = 5000
+    adjust=100
+    cellLimiter=3
+    activeMenuCell=undefined
+    sliderVisible=false
+    speedMod=false
+    flag=true
+    defenders.length = 0
+    buildings.length = 0
+    enemies.length = 0
+    projectiles.length = 0
+    enemyPosition.length = 0
+    resourses.length = 0
+    startAnimating(60)
+    document.getElementById('looseBtn').style.visibility='hidden'
+    goblin.src = 'img/characters/css_sprites2.png'
+    ork.src = 'img/characters/enemy22.png'
+}
+
 
 
 const gameGrid = []
@@ -32,6 +61,7 @@ const enemies= []
 const projectiles = []
 const enemyPosition = []
 const resourses = []
+const casts = []
 const enemyTypes= ['orc', 'goblin','goblin']
 const defendersTypes= ['warrior', 'archer']
 const musicArr=["audio/music/Sweet-Armenia.mp3","audio/music/Note.mp3",
@@ -49,13 +79,15 @@ goblin.src = 'img/characters/css_sprites2.png'
 const ork =new Image();
 ork.src = 'img/characters/enemy22.png'
 const building =new Image();
-building.src = 'img/human-city2.png'
+building.src = 'img/buildings/human-city2.png'
 const coin =new Image();
 coin.src = 'img/coin_gold.png'
 const gold =new Image();
 gold.src = 'img/gold.png'
 const church =new Image();
-church.src = 'img/house.png'
+church.src = 'img/buildings/myHouse5.png'
+const tower =new Image();
+tower.src = 'img/buildings/myTower2.png'
 const tree =new Image();
 tree.src = 'img/tree_10.png'
 const tree2 =new Image();
@@ -88,6 +120,8 @@ const cloud3 =new Image();
 cloud3.src = 'img/clouds/cloud-03.png'
 const cloud4 =new Image();
 cloud4.src = 'img/clouds/cloud-04.png'
+const lightning =new Image();
+lightning.src = 'img/lightning.png'
 
 //audio
 var bowSound = new Audio();
@@ -117,10 +151,16 @@ retreat.src ="audio/retreat.mp3";
 retreat.volume=0.2
 var runAway = new Audio();
 runAway.src ="audio/runAway2.mp3";
+runAway.volume=0.3
 var buildingFall = new Audio();
 buildingFall.src ="audio/buildingFall.mp3";
 buildingFall.volume=0.3
-
+var electro = new Audio();
+electro.src ="audio/electro.mp3";
+electro.volume=0.4
+var zaklinanie = new Audio();
+zaklinanie.src ="audio/zaklinanie.mp3";
+zaklinanie.volume=0.4
 const orkCrys=[orkCry, orkCry2, orkCry3, orkCry4]
 
 //mouse
@@ -174,7 +214,7 @@ function createGrid(){
     }
     //header grid
         for(let x = 480; x < canvas.width; x+=cellSize+20){
-            if(x<canvas.width-cellLimiter*cellSize*2) headerGrid.push(new Cell(x,10, true))
+            if(x<canvas.width-cellLimiter*cellSize) headerGrid.push(new Cell(x,10, true))
         }
 }
 
@@ -201,6 +241,10 @@ function handelGameGrid(){
     if(activeMenuCell===2){
         ctx.fillStyle = "rgba(100,150,185,0.5)"
         ctx.fillRect(840, 10, 100, 100) 
+    }
+    if(activeMenuCell===3){
+        ctx.fillStyle = "rgba(100,150,185,0.5)"
+        ctx.fillRect(960, 10, 100, 100) 
     }
 }
 //projectiles
@@ -251,7 +295,7 @@ class Defender {
         this.width = cellSize;
         this.height = cellSize;
         this.health = 100;
-        this.project= [];
+        this.project= []; //возможно лишняя
         this.timer = 0;
         this.shooting = false;
         this.frame=0;
@@ -259,13 +303,25 @@ class Defender {
         this.fight=false
         if(activeCell==1)this.type='warrior'
         if(activeCell==0)this.type='archer'
+        if(activeCell==3)this.type='mage', this.health =80, this.cast=false,
+        this.frameSize=192, this.increment, this.maxMana=180, this.mana=this.maxMana
         if(this.type==='warrior')this.health = 250, this.frameHeight=367;
     }
     draw(){
         //ctx.fillStyle = 'blue';
-        ctx.shadowBlur=0
+        
         // ctx.fillRect(this.x, this.y, this.width, this.height)
         //ctx.drawImage(archer, 300, 15, 100, 140, this.x+40, this.y+27, 60,70);
+        if(this.type==='mage'){
+            ctx.drawImage(mageSprite, 0,720,  720,720, this.x+12, this.y+18, 75,75)
+            if(this.cast){
+                ctx.drawImage(lightning, this.frameSize*this.frame, 0, this.frameSize, this.frameSize, this.x+23, this.y+40, this.frameSize*0.35,this.frameSize*0.35)
+                //ctx.drawImage(lightning, this.frameSize*this.frame, 0, this.frameSize, this.frameSize, this.x+40, this.y+60, this.frameSize*0.15,this.frameSize*0.15)
+            }
+            ctx.fillStyle = 'rgba(0, 149, 255, 0.7)';
+            ctx.font = '20px Aldrich';
+            ctx.fillText(Math.floor(this.mana), this.x+55, this.y+25)
+        }
         if(this.type==='archer'){
             !this.shooting ? ctx.drawImage(archer, 50, this.frame*this.frameHeight, 300, 392, this.x+27, this.y+23, 65,70)
             : ctx.drawImage(archer, 50, (this.frame)*this.frameHeight, 300, 392, this.x+27, this.y+23, 60,70);
@@ -275,8 +331,8 @@ class Defender {
             : ctx.drawImage(warrior, 0, (this.frame+20)*this.frameHeight, 297, 367, this.x+40, this.y+23, 55,65)
         }  
         ctx.fillStyle = 'gold';
-        ctx.font = '20px Aldrich';
-        ctx.fillText(Math.floor(this.health), this.x+25, this.y+25)
+        ctx.font = '18px Aldrich';
+        ctx.fillText(Math.floor(this.health), this.x+20, this.y+25)
     }
     update(){
         if(this.frame>17 && !this.shooting)this.frame=0
@@ -302,12 +358,25 @@ class Defender {
         }else{
             this.timer = 0
         }
+        if(this.type==='mage'){
+            if(frame % 25 ===0){
+                this.increment?this.frame++:this.frame--
+                if(this.frame>2)this.increment=false
+                if(this.frame<1)this.increment=true
+                if(casts.length>0)this.mana--
+                if(casts.length>3)this.mana-=2
+                if(casts.length==0&& this.mana<this.maxMana)this.mana+=2
+                if(casts.length>0&&electro.pause)electro.play()
+            }
+        if(this.mana<0)casts.length=0, this.cast=false, electro.pause()
+        }
         
     }
 }
 canvas.addEventListener('click', function(e){
     const gridPositionX = mouse.x - (mouse.x % cellSize);
     const gridPositionY = mouse.y - (mouse.y % cellSize);
+    //console.log(gridPositionX,gridPositionY);
     //if(gridPositionY < cellSize) return;
     let greaterArray= defenders.length>=buildings.length ? defenders.length : buildings.length
     for(let i=0; i < greaterArray; i++){
@@ -321,8 +390,8 @@ canvas.addEventListener('click', function(e){
                 i--
             }
         }else{
-            if(defenders[i] && defenders[i].x == gridPositionX && defenders[i].y ==gridPositionY) return
-            if(buildings[i] && buildings[i].x == gridPositionX && (buildings[i].y ==gridPositionY || buildings[i].y ==gridPositionY-100)) return
+            if(defenders[i] && defenders[i].x == gridPositionX && defenders[i].y ==gridPositionY&&activeMenuCell!=undefined) return
+            if(buildings[i] && buildings[i].x == gridPositionX && (buildings[i].y ==gridPositionY || buildings[i].y ==gridPositionY-100)&&activeMenuCell!=undefined) return
             }
     }
     if(activeMenuCell===0){  // если выбран лучник
@@ -333,18 +402,21 @@ canvas.addEventListener('click', function(e){
             numberOfResources -=defenderCost
         }
     }
-    if(activeMenuCell===1){  // если выбран воин
+    if(activeMenuCell===1|| activeMenuCell===3&& !isMage){  // если выбран воин или маг
         let defenderCost = 180;
+        if(activeMenuCell===3)defenderCost = 0
         if(numberOfResources >= defenderCost && mouse.y>cellSize+adjust && mouse.y<800 
             && mouse.x<canvas.width-cellLimiter*cellSize){
             defenders.push(new Defender(gridPositionX, gridPositionY+100,activeMenuCell))
             numberOfResources -=defenderCost
+            if(activeMenuCell===3)isMage=true
         }
     }
     if(gridPositionY==0){
         if(gridPositionX==600)activeMenuCell=0
         if(mouse.x>720&& mouse.x<820)activeMenuCell=1
-        if(mouse.x>840&& mouse.x<940)activeMenuCell=2
+        if(mouse.x>840&& mouse.x<940)activeMenuCell=2, document.getElementById('buildings').style.visibility='visible'
+        if(mouse.x>960&& mouse.x<1060)activeMenuCell=3
         if(mouse.x>480&& mouse.x<580)activeMenuCell=-1
         if(gridPositionX==1400){toggleSlider()}
     }
@@ -355,14 +427,36 @@ canvas.addEventListener('click', function(e){
         }
         let buildingCost = 300;
         if(numberOfResources >= buildingCost && mouse.y>cellSize+adjust && mouse.y<900 
-            && mouse.x<100){
-            buildings.push(new Building(gridPositionX, gridPositionY))
+            && mouse.x<100&& buildingType){
+            buildings.push(new Building(gridPositionX, gridPositionY, buildingType))
             builSound.play()
             numberOfResources -=buildingCost
         }
     }
+    if(activeMenuCell===undefined){  // кастуем магическую стену
+        
+        //let defenderCost = 180;
+        if( mouse.y>cellSize+adjust && mouse.y<800 
+            && mouse.x<canvas.width-cellLimiter*cellSize&& isMage && casts.length<4){
+                defenders.map(i=>{if(i.type=='mage')i.cast=true})
+            casts.push(new Cast(gridPositionX, gridPositionY))
+            setTimeout(()=>{
+                casts.push(new Cast(gridPositionX, gridPositionY))
+            },1000)
+            setTimeout(()=>{
+                casts.push(new Cast(gridPositionX, gridPositionY))
+            },2000)
+            zaklinanie.play()
+        }
+    }
     if(gameOver)document.getElementById("looseBtn").style.visibility='visible'
+    if(towers.length>0&&activeMenuCell===undefined){
+        for(let i=0; i < towers.length; i++){
+            if(towers[0].x == gridPositionX && towers[0].y+100 ==gridPositionY) console.log("клацнули на башню");
+        }
+    }
 })
+
 
 function handleDefenders(){
     for(let i = 0; i < defenders.length; i++){
@@ -389,6 +483,14 @@ function handleDefenders(){
                 enemies[j].fight=false
                 boi.pause()
                 enemies[j].movement = enemies[j].speed;
+            }
+        }
+    }
+    for(let i = 0; i < casts.length; i++){
+        for(let j =0; j<enemies.length; j++){
+            if(casts[i]&& !enemies[j].death && collisian(casts[i], enemies[j])){
+                enemies[j].movement=0
+                enemies[j].health -=0.1
             }
         }
     }
@@ -422,7 +524,7 @@ class Enemy {
     }
     draw(){
         ctx.shadowColor = "red";
-        ctx.shadowBlur = 0;
+        
         /* ctx.fillStyle= 'red';
         ctx.fillRect(this.x, this.y, this.width, this.height) */
         
@@ -492,9 +594,9 @@ class Resource{
     constructor(modificator){
         /* this.x = Math.random() * canvas.width-cellSize
         this.y = (Math.floor(Math.random() * 6)+1)*cellSize+200 */
-        this.buildingIndex = Math.floor(Math.random() * buildings.length)
-        this.x = buildings[this.buildingIndex].x+35
-        this.y = buildings[this.buildingIndex].y+10
+        this.buildingIndex = Math.floor(Math.random() * houses.length)
+        this.x = houses[this.buildingIndex].x+35
+        this.y = houses[this.buildingIndex].y+10
         this.width= cellSize*0.5
         this.height = cellSize*0.5
         this.amount = amounts[Math.floor(Math.random()*amounts.length)]*modificator*0.6
@@ -502,7 +604,7 @@ class Resource{
         this.frameWidth=32
     }
     draw(){
-        ctx.shadowBlur=0;
+        
         /* ctx.fillStyle = 'yellow'
         ctx.fillRect(this.x, this.y, this.width, this.height) */
         if(frame % 9 === 0 && score < winningScore){
@@ -512,15 +614,22 @@ class Resource{
         ctx.drawImage(coin, this.frame*this.frameWidth, 0, 30, 32, this.x+8, this.y+13, 40,42)
         ctx.fillStyle = 'black'
         ctx.font = '20px Aldrich'
-        ctx.shadowBlur=20;
+        
         ctx.fillStyle = 'yellow'
         ctx.fillText(this.amount, this.x+15, this.y+10)
-        ctx.shadowBlur=0;
+        
     }
 }
+
 function handleResources(){
-    if(buildings.length>0 && frame % 500 === 0 && score < winningScore){
-        resourses.push(new Resource(buildings.length))
+    houses=buildings.filter((i)=>{ // складываем в массив здания типа 'house'
+        return i.type=='house'
+    })
+    towers=buildings.filter((i)=>{ // тоже для зданий типа 'tower'
+        return i.type=='tower'
+    })
+    if(houses.length>0 && frame % 500 === 0 && score < winningScore){
+        resourses.push(new Resource(houses.length))
     }
     for (let i = 0;i<resourses.length; i++){
         resourses[i].draw();
@@ -529,6 +638,42 @@ function handleResources(){
             resourses.splice(i,1)
             i--
         }
+    }
+}
+
+class Cast{
+    constructor(x,y){
+        this.x=x
+        this.y=y
+        this.width= cellSize
+        this.height = cellSize
+        this.frameX=-3
+        this.frameY=0
+        this.frameSize=192
+        this.increment=true
+    }
+    draw(){
+        
+    if(frame % 9 === 0 && score < winningScore){
+        if(this.frameY==0&&this.frameX==0) this.increment=true
+        if(this.increment&&this.frameX>3)this.frameY++,this.frameX=0
+        if(this.increment&&this.frameY>3)this.frameY=0
+        if(this.frameY==3&&this.frameX>2)this.increment=false
+        if(!this.increment&&this.frameX<1)this.frameX=4,this.frameY--
+        this.increment ? this.frameX++ : this.frameX--
+    }
+    ctx.drawImage(lightning, this.frameSize*this.frameX, this.frameSize*this.frameY, this.frameSize, this.frameSize, this.x-40, this.y-40, this.frameSize,this.frameSize)
+    }
+}
+function handleCasts(){
+    
+    for (let i = 0;i<casts.length; i++){
+        casts[i].draw();
+        /* if(resourses[i] && mouse.x && mouse.y && collisian(resourses[i], mouse)){
+            numberOfResources += resourses[i].amount
+            resourses.splice(i,1)
+            i--
+        } */
     }
 }
 //utiltties
@@ -562,29 +707,50 @@ function handelGameStatus(){
     }
     if(score>1400&&flag){
         speedMod=true
-        orcLaugh.play(), flag=false}
+        orcLaugh.play(), flag=false
+    }
     ctx.shadowColor = "white";
-        ctx.shadowBlur=2;
-        ctx.lineWidth = 2
-        if(activeMenuCell===2)  ctx.strokeRect(2, 200, 100, 700);
-        ctx.lineWidth = 1
+    ctx.shadowBlur=0;
+    ctx.lineWidth = 2
+    if(activeMenuCell===2)  ctx.strokeRect(2, 200, 100, 700);
+    ctx.lineWidth = 1
 }
 
+let fps, fpsInterval, startTime, now, then, elapsed;
+
+function startAnimating(fps){
+    fpsInterval = 1000/fps;
+    //then = Math.floor(performance.now());
+    then=1
+    startTime = then;
+    animate();
+}
 function animate(){
-    ctx.clearRect(0,0, canvas.width, canvas.height)
-    //ctx.fillStyle='rgb(250, 177, 67)'
-    //ctx.fillRect(0,0,controlsBar.width, controlsBar.height)
-    clouds()
-    handleBuildings()
-    handelGameGrid()
-    handleDefenders()
-    handleEnimies()
-    handleProjectiles()
     
-    handleResources()
-    header()
-    handelGameStatus()
-    if(!gameOver && !gamePaused)requestAnimationFrame(animate)
+    now =Math.floor(performance.now());
+    elapsed = now - then;
+    if(elapsed > fpsInterval){
+        
+        then =Math.floor(now - (elapsed % fpsInterval));
+        ctx.clearRect(0,0, canvas.width, canvas.height)
+        //ctx.fillStyle='rgb(250, 177, 67)'
+        //ctx.fillRect(0,0,controlsBar.width, controlsBar.height)
+        clouds()
+        
+        handelGameGrid()
+        handleBuildings()
+        handleDefenders()
+        handleEnimies()
+        handleProjectiles()
+        handleCasts()
+        handleResources()
+        header()
+        handelGameStatus()
+        
+        
+    }
+    if(!gameOver && !gamePaused){requestAnimationFrame(animate)}
+    
     frame++
 }
 
@@ -604,24 +770,25 @@ function header(){
     let cost=120
     if(activeMenuCell==1)cost=180
     if(activeMenuCell==2)cost=300
+    if(activeMenuCell==3)cost=0
     ctx.drawImage(archer, 50, 0, 300, 392, 630, 30, 65,70)
     ctx.drawImage(building, 0, 0, 80, 140, 840, 20, 110,150)
     ctx.drawImage(warrior, 0, 0, 297, 367, 740, 30, 60,70)
+    if(towers.length>0)ctx.drawImage(mageSprite, 0, 720,  720, 720, 971, 27, 75,75)
     ctx.drawImage(delBtn, 0, 0, 900, 900, 510, 40, 45, 45)
     ctx.drawImage(musicBtn, 0, 0, 128, 128, 1410, 30, 55, 55)
+    if(activeMenuCell!=2)document.getElementById('buildings').style.visibility='hidden'//скрываем меню зданий
     if(activeMenuCell!=undefined){
         if(activeMenuCell!=-1){
-            ctx.fillStyle = "rgba(100,150,185,0.3)"
+            ctx.fillStyle = "rgba(100,150,185,0.5)"
             ctx.fillRect(675, 120, 200, 50) 
             ctx.shadowColor='white'
-            ctx.shadowBlur=2
             ctx.fillStyle = 'black';
             ctx.font = '30px Aldrich';
             ctx.fillText('Cost: ' + cost,700,160)
         }
     }
     //enviroment
-    ctx.shadowBlur=0
     //
     ctx.drawImage(tree, 0, 0, 218, 172, 570, 490, 218*0.7,172*0.7)
     ctx.drawImage(tree, 0, 0, 218, 172, 700, 290, 218*0.7,172*0.7)
@@ -651,21 +818,23 @@ window.addEventListener('resize', function(){
 //buildings
 
 class Building {
-    constructor(x,y){
+    constructor(x,y, type){
         this.x = x;
         this.y = y-adjust;
         this.width = cellSize;
         this.height = cellSize*2;
         this.health = 100;
         this.timer = 0;
+        this.type=type
     }
     draw(){
-        ctx.shadowBlur=0;
-        //ctx.drawImage(building, 0, 0, 80, 140, this.x-40, this.y+30, 170,330)
-        ctx.drawImage(church, 0, 0, 358, 493, this.x-30, this.y+20, 290,550)
+        
+        if(this.type=='tower')ctx.drawImage(tower, 0, 0, 1000, 1500, this.x-78, this.y-30, 250,230)
+        //if(this.type=='house')ctx.drawImage(church, 0, 0,608, 485, this.x-5, this.y+20, 220,280)
+        if(this.type=='house')ctx.drawImage(church, 0,0, 609,293, this.x-10,this.y+20, 140,180)
         ctx.fillStyle = 'black';
         ctx.font = '20px Aldrich';
-        ctx.fillText(Math.floor(this.health), this.x, this.y+40)
+        ctx.fillText(Math.floor(this.health), this.x+10, this.y+40)
         
     }
     update(){
@@ -682,7 +851,7 @@ function handleBuildings(){
                 enemies[j].movement = 0
                 buildings[i].health -= 0.2;
                 enemies[j].fight=true
-                boi.play()
+                if(boi.paused)boi.play()
             }
             if(buildings[i] && buildings[i].health <=0){
                 buildingFall.play()
@@ -784,7 +953,7 @@ function skipBrif(){
         ctx3.clearRect(0,0, canvas2.width, canvas2.height)
         ctx2.clearRect(0,0, canvas2.width, canvas2.height)
         gamePaused=false
-        animate();
+        startAnimating(60);
         canvas2.remove()
         canvas3.remove()
         document.getElementById('skipDiv').style.visibility='hidden'
@@ -857,7 +1026,7 @@ function mage(){ //функция называется маг, но отвеча
     setTimeout(() => { if(!skipBriffing)act4=true},21000);
     setTimeout(() => { if(!skipBriffing)act5=true},23000);
     setTimeout(() => { if(act5)typeText()},24000);
-    //setTimeout(() => { if(act5)skipBrif()},41500);
+    setTimeout(() => { if(act5)document.getElementById('skipDiv').style.visibility='visible'},39000);
 }
 
 function typeOut(str, a,b,c, g) {
@@ -913,3 +1082,7 @@ function clouds(){
     ctx.drawImage(cloud2, 0, 0, 1920, 1047, canvas2.width-cloudPos, 0, canvas2.width, controlsBar.height-20)
 }
 
+function selectBuilding(type){
+    buildingType=type
+    document.getElementById('buildings').style.visibility='hidden'
+}

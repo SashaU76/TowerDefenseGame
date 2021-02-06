@@ -45,10 +45,12 @@ function initialState(){
     projectiles.length = 0
     enemyPosition.length = 0
     resourses.length = 0
+    casts.length=0
     startAnimating(60)
     document.getElementById('looseBtn').style.visibility='hidden'
     goblin.src = 'img/characters/css_sprites2.png'
     ork.src = 'img/characters/enemy22.png'
+    isMage=false
 }
 
 

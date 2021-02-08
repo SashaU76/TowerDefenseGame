@@ -7,20 +7,36 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pangolin&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 </head>
 <body>
     <div id=start><button id=startBtn onclick="start()">Start</button></div>
     
-    <div id='nextday1'><div id='nextday'>on next day</div></div>
-    <button id="looseBtn" onclick="initialState()">I can better</button>
+    <div id='nextday1'><div id='nextday'>на следующее утро</div></div>
+    <button id="looseBtn" onclick="initialState()">I can do better</button>
     <canvas id="canvas1"></canvas>
     <div class="briffing">
         <canvas id="canvas2"></canvas>
         <canvas id="canvas3"></canvas>
     </div>
     <div id='skipDiv' onclick="skipBrif()">ok </div>
+    <div id='info' onclick="toggleInfo()">
+        <h3>Подсказка</h3>
+        <div id="infoText">
+            Если орки проидут до конца моста эльфийский город падет.<br/>
+            У вас есть 3 типа войск: <br />
+            <li><b>лучники</b> - мало здоровья, стреляют из далека.</li>
+            <li><b>войны</b> - много здоровья, наносят урон вблизи.</li>
+            <li><b>маг</b> - кастует магическую барьер, который останавливает врага и наносит небольшой урон.<br /></li>
+            Чтобы скастовать барьер нажмите правую кнопку мышки, а затем левую над местом где хотите поставить барьер<br />
+            Для того чтобы убрать здание/война или <b>отменить заклинание</b> воспользуйтесь крестиком в верхней панели.<br />
+            Здания: <br />
+            <li><b>дом</b> - приносит деньги (чтобы собрать налоги наведите на монетку над домом)</li>
+            <li><b> башня мага</b> - построив ее вы сможете нанять мага</li>
+        </div>
+    </div>
     <div id='buildings'>
         <div id='buildingDiv' onclick="selectBuilding('tower')">
             <img id='tower'class="buildingImg" src="img/buildings/myTower2.png">
@@ -32,6 +48,7 @@
             <div class="imgText">Craftsman house. Brings income.</div>
         </div>
     </div>
+    <img id='help' src="img/help.png" onclick="toggleInfo()">
     <!-- <canvas id="canvas4"></canvas> -->
     <div id="fogWrapper"><div class="fog" id="fog"><div></div></div></div>
     

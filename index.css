@@ -4,6 +4,7 @@ body {
   font-size: 28px;
   overflow: hidden;
   box-sizing: border-box;
+  /* font-family: 'Pangolin', cursive; */
 }
 #start {
   position: relative;
@@ -165,16 +166,17 @@ body {
   top: 80%;
   left: 50%;
   transform: translate(-50%, 0);
-  background: none;
+  background: rgba(100, 150, 185, 0.6);
   color: #ffffff;
   font-family: "Yusei Magic";
   text-align: center;
   visibility: hidden;
   cursor: pointer;
   z-index: 99;
+  border-radius: 10%;
 }
 #buildings {
-  background: rgba(100, 150, 185, 0.6);
+  background: rgba(100, 150, 185, 0.8);
   position: absolute;
   top: 40%;
   left: 60%;
@@ -218,4 +220,34 @@ body {
 #buildingDiv:hover {
   background: rgba(100, 150, 185, 0.8);
   border: 1px solid black;
+}
+#info {
+  width: 900px;
+  height: 650px;
+  background: rgba(100, 150, 185, 0.8);
+  position: absolute;
+  z-index: 99;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 20px;
+  visibility: hidden;
+}
+#infoText {
+  text-align: left;
+  padding: 0 20px;
+  font-family: "Aldrich";
+}
+li {
+  margin-left: 30px;
+}
+#help {
+  position: absolute;
+  height: 55px;
+  width: 55px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  visibility: hidden;
 }

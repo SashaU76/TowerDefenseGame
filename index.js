@@ -15,7 +15,7 @@ let score=0
 let numberOfResources=900
 let enemiesInterval=600
 let gameOver = false
-let winningScore = 5000
+let winningScore = 8000
 let adjust=100
 let cellLimiter=5
 let activeMenuCell=undefined
@@ -25,8 +25,11 @@ let speedMod=false
 let flag=true
 let isMage=false
 let buildingType, towers, houses
+let muchMana=false
 
 function initialState(){
+    retreat.pause(), runAway.pause()
+    playMusic = false
     frame=0
     score=0
     numberOfResources=900
@@ -46,11 +49,13 @@ function initialState(){
     enemyPosition.length = 0
     resourses.length = 0
     casts.length=0
+    bosses.length=0
     startAnimating(60)
     document.getElementById('looseBtn').style.visibility='hidden'
     goblin.src = 'img/characters/css_sprites2.png'
     ork.src = 'img/characters/enemy22.png'
     isMage=false
+    
 }
 
 
@@ -124,14 +129,20 @@ const cloud4 =new Image();
 cloud4.src = 'img/clouds/cloud-04.png'
 const lightning =new Image();
 lightning.src = 'img/lightning.png'
+const boss1 =new Image();
+boss1.src = 'img/boss11.png'
+const cast2 =new Image();
+cast2.src = 'img/casts/cast2.png'
+const cast1 =new Image();
+cast1.src = 'img/casts/myCast.png'
 
 //audio
 var bowSound = new Audio();
 bowSound.src ="audio/strelba3.mp3";
-bowSound.volume=0.3
+bowSound.volume=0.1
 var boi = new Audio();
 boi.src ="audio/boi2.mp3";
-boi.volume=0.4
+boi.volume=0.2
 var orkCry = new Audio();
 orkCry.src ="audio/ork/orkCry.mp3";
 var orkCry2 = new Audio();
@@ -147,7 +158,7 @@ var builSound = new Audio();
 builSound.src ="audio/building.mp3";
 var orcLaugh = new Audio();
 orcLaugh.src ="audio/orcLaugh.mp3";
-orcLaugh.volume=0.2
+orcLaugh.volume=0.1
 var retreat = new Audio();
 retreat.src ="audio/retreat.mp3";
 retreat.volume=0.2
@@ -162,7 +173,15 @@ electro.src ="audio/electro.mp3";
 electro.volume=0.1
 var zaklinanie = new Audio();
 zaklinanie.src ="audio/zaklinanie.mp3";
-zaklinanie.volume=0.1
+zaklinanie.volume=0.2
+var bossCast = new Audio(); 
+bossCast.src ="audio/bossCast.mp3"; bossCast.volume=0.5
+var bossDie = new Audio();
+bossDie.src ="audio/bossDie.mp3";bossDie.volume=0.4
+var bossMagic = new Audio();
+bossMagic.src ="audio/bossMagic.mp3";bossMagic.volume=0.3
+var bossWalk = new Audio();
+bossWalk.src ="audio/bossWalk.mp3";bossWalk.volume=0.4
 const orkCrys=[orkCry, orkCry2, orkCry3, orkCry4]
 
 //mouse
@@ -278,7 +297,14 @@ function handleProjectiles(){
             if(enemies[j] && projectiles[i]&& enemies[j].death==false && collisian(enemies[j], projectiles[i])){
                 enemies[j].health -= projectiles[i].power
                 orkCrys[Math.floor(Math.random()*orkCrys.length)].play()
-                orkCry2.volume=0.2,orkCry.volume=0.2,orkCry3.volume=0.2,orkCry4.volume=0.2
+                orkCry2.volume=0.1,orkCry.volume=0.1,orkCry3.volume=0.1,orkCry4.volume=0.1
+                projectiles.splice(i,1)
+                i--
+            }
+        }
+        for(let k = 0; k < bosses.length; k++){
+            if(bosses[k] && projectiles[i] && collisian(bosses[k], projectiles[i])){
+                bosses[k].health -= projectiles[i].power
                 projectiles.splice(i,1)
                 i--
             }
@@ -365,12 +391,14 @@ class Defender {
                 this.increment?this.frame++:this.frame--
                 if(this.frame>2)this.increment=false
                 if(this.frame<1)this.increment=true
-                if(casts.length>0)this.mana--
+                if(casts.length>0)this.mana-- 
                 if(casts.length>3)this.mana-=2
+                if(muchMana)this.mana-=4
                 if(casts.length==0&& this.mana<this.maxMana)this.mana+=2
                 if(casts.length>0&&electro.pause)electro.play()
             }
         if(this.mana<0)casts.length=0, this.cast=false, electro.pause()
+        if(casts.length==0)this.cast=false, electro.pause()
         }
         
     }
@@ -384,6 +412,7 @@ canvas.addEventListener('click', function(e){
     for(let i=0; i < greaterArray; i++){
         if(activeMenuCell==-1){
             if(defenders[i] && defenders[i].x == gridPositionX && defenders[i].y ==gridPositionY) {
+                if(defenders[i].type=='mage')isMage=false
                 defenders.splice(i,1)
                 i--
             }
@@ -396,11 +425,19 @@ canvas.addEventListener('click', function(e){
             if(buildings[i] && buildings[i].x == gridPositionX && (buildings[i].y ==gridPositionY || buildings[i].y ==gridPositionY-100)&&activeMenuCell!=undefined) return
             }
     }
+    for(let i=0; i < casts.length; i++){
+        if(casts[i] && casts[i].x == gridPositionX && (casts[i].y ==gridPositionY || casts[i].y ==gridPositionY-100)) {
+                casts.splice(i,3)
+                i--
+            }
+    }
+
     if(activeMenuCell===0){  // если выбран лучник
         let defenderCost = 120;
         if(numberOfResources >= defenderCost && mouse.y>cellSize+adjust && mouse.y<800 
             && mouse.x<canvas.width-cellLimiter*cellSize){
             defenders.push(new Defender(gridPositionX, gridPositionY+100,activeMenuCell))
+            
             numberOfResources -=defenderCost
         }
     }
@@ -428,7 +465,7 @@ canvas.addEventListener('click', function(e){
             buildings[i]&&  buildings[i].y ==gridPositionY-200) return //проверка не стоит ли за зданием лучник или здание
         }
         let buildingCost = 300;
-        if(numberOfResources >= buildingCost && mouse.y>cellSize+adjust && mouse.y<900 
+        if(numberOfResources >= buildingCost && mouse.y>cellSize+adjust && mouse.y<800 
             && mouse.x<100&& buildingType){
             buildings.push(new Building(gridPositionX, gridPositionY, buildingType))
             builSound.play()
@@ -466,11 +503,21 @@ function handleDefenders(){
         defenders[i].update()
         if(enemyPosition.indexOf(defenders[i].y+adjust) !==-1 && defenders[i].type==='archer'){
             defenders[i].shooting=true
+        }else if(bosses[0]&&(bosses[0].y==defenders[i].y|| bosses[0].y+adjust==defenders[i].y) && defenders[i].type==='archer'){
+            defenders[i].shooting=true //косячная проверка, предпологает наличие только одного босса. надо думать
         }else{
             defenders[i].shooting=false
         }
         for(let j =0; j<enemies.length; j++){
-            if(defenders[i]&& enemies[j].death==false && collisian(defenders[i], enemies[j])){
+            if(defenders[i]&& enemies[j].type=='magic'&& collisian(defenders[i], enemies[j])){ // столкновение с магическим кастом
+                defenders.splice(i, 1)
+                i--;
+                enemies.splice(j,1)
+                j--;
+                bossMagic.pause()
+                return
+            }
+            if(defenders[i]&&  enemies[j].death==false&& enemies[j].type!='magic' && collisian(defenders[i], enemies[j])){
                 enemies[j].movement=0
                 defenders[i].health -= 0.2;
                 if(defenders[i].type==='warrior') enemies[j].health -=0.2
@@ -495,37 +542,54 @@ function handleDefenders(){
                 enemies[j].health -=0.1
             }
         }
+        for(let k =0; k<bosses.length; k++){
+            if(casts[i]&& bosses[k] && collisian(casts[i], bosses[k])){
+                bosses[k].movement=0
+                bosses[k].health -=0.1
+                
+                muchMana=true
+            }
+        }
     }
 }
 //enemies
 class Enemy {
-    constructor(verticalPosition){
+    constructor(verticalPosition, magicCast){
         this.x = canvas.width;
         this.y = verticalPosition-adjust;
         this.width = cellSize;
         this.height = cellSize;
-        this.speed = speedMod? Math.random()*0.2+0.7 :Math.random()*0.2+0.4;
-        this.movement = this.speed;
-        this.health = 180;
-        this.maxHealth = this.health;
-        this.fight=false;
-        this.frameHeight=299;
-        this.frame=23;
-        this.death= false
-        this.flag=false
-        this.type= enemyTypes[Math.floor(Math.random()*enemyTypes.length)]
-        if(this.type==='orc')this.health = 280, this.frame=0, this.frameHeight=275;
+        if(magicCast){
+            this.speed=3
+            this.frame=0
+            this.type='magic'
+        }else{
+            this.speed = speedMod? Math.random()*0.2+0.7 :Math.random()*0.2+0.4;
+            this.movement = this.speed;
+            this.health = 160;
+            this.maxHealth = this.health;
+            this.fight=false;
+            this.frameHeight=299;
+            this.frame=23;
+            this.death= false
+            this.flag=false
+            this.type= enemyTypes[Math.floor(Math.random()*enemyTypes.length)]
+            if(this.type==='orc')this.health = 250, this.frame=0, this.frameHeight=275;
+        }
     }
     update(){
-        if(!this.death){
+        if(this.type!='magic'&&!this.death){
             (score>= winningScore) ?this.x += this.movement*1.7 : this.x -= this.movement;
         }
-        if(frame % 3 ==0){
+        if(this.type!='magic'&&frame % 3 ==0){
             this.frame++
         }
+        if(this.type=='magic'&&frame % 5 ==0){
+            this.frame++
+        }
+        if(this.type=='magic')this.x -= this.speed, bossMagic.play()
     }
     draw(){
-        ctx.shadowColor = "red";
         
         /* ctx.fillStyle= 'red';
         ctx.fillRect(this.x, this.y, this.width, this.height) */
@@ -537,10 +601,13 @@ class Enemy {
         if(this.type==='orc') {  //orc
             this.fight===false? ctx.drawImage(ork, 50, (this.frame+40)*this.frameHeight, 235, 300, this.x-20, this.y+7, 80,90)
             :  ctx.drawImage(ork, 50, this.frame*this.frameHeight, 265, 300, this.x-40, this.y+7, 80,90); 
-        }     
+        }   
+        if(this.type==='magic') {
+            ctx.drawImage(cast1, 0,500*this.frame, 500, 500, this.x-40, this.y+7, 80,90)
+        }  
         
         //health bar
-        if(!this.death){
+        if(!this.death && this.type!='magic'){
             ctx.fillStyle= 'black';
             ctx.font = '20px Aldrich';
             ctx.fillText(Math.floor(this.health), this.x+10, this.y+20)
@@ -552,9 +619,11 @@ function handleEnimies(){
     for(let i=0; i<enemies.length; i++){
         enemies[i].update()
         enemies[i].draw()
-        if(!enemies[i].death){
-            if(enemies[i].type==='goblin' && enemies[i].frame===40 && enemies[i].fight)enemies[i].frame=23, enemies[i].fight=false, enemies[i].movement=enemies[i].speed
-            if(enemies[i].type==='goblin' && enemies[i].frame===42 && !enemies[i].fight)enemies[i].frame=23
+        if(enemies[i].type=='magic'&& enemies[i].frame>9)enemies[i].frame=0
+        if(enemies[i].type=='magic'&& enemies[i].x<0)enemies.splice(i,1), bossMagic.pause()
+        if(!enemies[i].death && enemies[i].type!='magic'){
+            if(enemies[i].type==='goblin' && enemies[i].frame>39 && enemies[i].fight)enemies[i].frame=23, enemies[i].fight=false, enemies[i].movement=enemies[i].speed
+            if(enemies[i].type==='goblin' && enemies[i].frame>41 && !enemies[i].fight)enemies[i].frame=23,enemies[i].movement=enemies[i].speed
             if(enemies[i].type==='orc' && enemies[i].frame===19)enemies[i].frame=0, enemies[i].fight=false, enemies[i].movement=enemies[i].speed
         }else{
             if(enemies[i].type==='goblin'&& enemies[i].flag==false&& enemies[i].fight)enemies[i].frame=-9, enemies[i].flag=true
@@ -563,12 +632,13 @@ function handleEnimies(){
             if(enemies[i].type==='orc'&& enemies[i].flag==false && enemies[i].fight)enemies[i].frame=28, enemies[i].flag=true
         }
         
-        if(enemies[i] && enemies[i].health <=0){
+        if(enemies[i]&& enemies[i].type!='magic' && enemies[i].health <=0){
             enemies[i].death=true
             if(enemies[i].type==='goblin'&&enemies[i].frame==21 && !enemies[i].fight ||enemies[i].type==='goblin'&&enemies[i].frame==1 && enemies[i].fight
             ||enemies[i].type==='orc'&& !enemies[i].fight &&enemies[i].frame==-2
             ||enemies[i].type==='orc'&& enemies[i].fight &&enemies[i].frame==38){
                 let gainedResources = enemies[i].maxHealth/5
+                if(score>3000)gainedResources=30
                 const findThisPosition = enemyPosition.indexOf(enemies[i].y+adjust)
                 numberOfResources+=gainedResources
                 score+=gainedResources
@@ -578,13 +648,14 @@ function handleEnimies(){
             }
             boi.pause()
         }
-        if(enemies[i] && enemies[i].x < 0){
+        if(enemies[i]&& enemies[i].type!='magic' && enemies[i].x < 0){
             gameOver = true;
         }
     }
     if(frame % enemiesInterval === 0){
         let verticalPosition = Math.floor(Math.random()*6+1)*cellSize+200
-        enemies.push(new Enemy(verticalPosition))
+        enemies.push(new Enemy(verticalPosition, false))
+        if(bosses.length<1&&  score>3000 && score<3500)bosses.push(new Boss()), enemiesInterval=60
         enemyPosition.push(verticalPosition)
         if(enemiesInterval > 100) enemiesInterval -=20;
     }
@@ -682,7 +753,7 @@ function handleCasts(){
 function handelGameStatus(){
     ctx.shadowColor = "white";
     //ctx.shadowBlur = 20;
-    ctx.shadowBlur=20;
+    //ctx.shadowBlur=20;
     ctx.fillStyle = 'black';
     ctx.font = '50px Yusei Magic';
     //ctx.fillText('Score: ' + score,1220,80)
@@ -728,11 +799,9 @@ function startAnimating(fps){
     animate();
 }
 function animate(){
-    
-    now =Math.floor(performance.now());
+    now = Math.floor(performance.now());
     elapsed = now - then;
     if(elapsed > fpsInterval){
-        
         then =Math.floor(now - (elapsed % fpsInterval));
         ctx.clearRect(0,0, canvas.width, canvas.height)
         //ctx.fillStyle='rgb(250, 177, 67)'
@@ -744,12 +813,12 @@ function animate(){
         handleDefenders()
         handleEnimies()
         handleProjectiles()
-        handleCasts()
+        
         handleResources()
         header()
         handelGameStatus()
-        
-        
+        handelBoss()
+        handleCasts()
     }
     if(!gameOver && !gamePaused){requestAnimationFrame(animate)}
     
@@ -812,6 +881,8 @@ window.addEventListener('resize', function(){
     audioplayerPositionTop=canvasPosition.top +130
     audioplayer.style.left = `${audioplayerPositionleft}px`;
     audioplayer.style.top = `${audioplayerPositionTop}px`;
+    help.style.left = `${audioplayerPositionleft-50}px`;
+    help.style.top = `${audioplayerPositionTop-100}px`;
     /* fogWrapper.style.left = `${audioplayerPositionleft}px`;
     fogWrapper.style.top=canvasPosition.y
     */
@@ -833,7 +904,7 @@ class Building {
         
         if(this.type=='tower')ctx.drawImage(tower, 0, 0, 1000, 1500, this.x-78, this.y-30, 250,230)
         //if(this.type=='house')ctx.drawImage(church, 0, 0,608, 485, this.x-5, this.y+20, 220,280)
-        if(this.type=='house')ctx.drawImage(church, 0,0, 609,293, this.x-10,this.y+20, 140,180)
+        if(this.type=='house')ctx.drawImage(church, 0,0, 609,340, this.x-10,this.y+27, 170,160)
         ctx.fillStyle = 'black';
         ctx.font = '20px Aldrich';
         ctx.fillText(Math.floor(this.health), this.x+10, this.y+40)
@@ -853,7 +924,7 @@ function handleBuildings(){
                 enemies[j].movement = 0
                 buildings[i].health -= 0.2;
                 enemies[j].fight=true
-                if(boi.paused)boi.play()
+                if(boi.played.length<1)boi.play()
             }
             if(buildings[i] && buildings[i].health <=0){
                 buildingFall.play()
@@ -866,7 +937,115 @@ function handleBuildings(){
         }
     }
 }
-
+const bosses=[]
+//defenders
+class Boss {
+    constructor(){
+        this.x = canvas.width-200;
+        this.y = 500;
+        this.initialY=this.y
+        this.width = cellSize*2;
+        this.height = cellSize*2;
+        this.health = 8000;
+        this.frame=0;
+        this.timer=0;
+        this.frameHeight=510;
+        this.walking=true
+        this.dying=false
+        this.cast = false;
+        this.movement=1
+        this.fight=false
+        this.direction=Math.random()
+        this.step4=false
+    }
+    draw(){
+        ctx.drawImage(boss1, 0,this.frameHeight*this.frame, 740,this.frameHeight, this.x-50,this.y, this.width,this.height) //170,160
+        if(this.cast)ctx.drawImage(cast2, 192*(Math.floor(this.timer/20)),0, 192,188, this.x-50,this.y, this.width,this.height)
+        ctx.fillStyle = 'black';
+        ctx.font = '20px Aldrich';
+        ctx.fillText(Math.floor(this.health), this.x+10, this.y+40)
+    }
+    update(){
+        //frame update
+        if(this.cast)this.timer++
+        if(this.timer==180||this.timer==200){
+            enemies.push(new Enemy(Math.floor(Math.random()*6+1)*cellSize+200, true))
+        }
+        if(frame % 6 ===0){
+            this.frame++
+        }
+        if(!this.walking===true)bossWalk.pause()
+        if(this.movement==0)muchMana=true
+        if(this.movement!=0)muchMana=false
+        if(this.walking===true){
+            bossWalk.play()
+            
+            if(this.frame>51||this.frame<38)this.frame=38}
+        if(this.dying===true){
+            this.walking=false, this.cast=false, this.fight=false
+            if(this.frame>15)bosses.slice(0,1)} //из расчета что босс будет только один
+        if(this.fight===true){
+            this.cast=false
+            if(this.frame>61&&!this.dying)this.walking=true, this.step4=true //здесь может быть ошибка если он не будет успевать убить за 10 фреймов
+            if(this.frame<52)this.frame=52}
+        if(this.cast===true){
+            muchMana=false
+            bossCast.play()
+            if(this.frame<16||this.frame>30)this.frame=16}
+        // moving logic
+        if(this.step4){
+            this.timer=0
+            this.fight=false
+            this.x+=this.movement
+            if(this.x>900)this.step4=false
+        }else{
+            if(this.fight){
+                this.walking=false
+                this.initialY=this.y; if(this.initialY>600)this.initialY=300;if(this.initialY<200)this.initialY=400
+                this.direction=Math.random()
+            }else{
+                if(this.x>800 && this.timer===0)this.x-=this.movement              //step1
+                if(this.x==800 && this.timer<10)this.walking=false, this.cast=true //step2
+                if(this.timer>240&&!this.dying){                                   //step3
+                this.cast=false, this.walking=true, this.x-=this.movement 
+                if(this.direction>0.5&& this.y<this.initialY+100)this.y+=this.movement
+                if(this.direction<0.5&& this.y>this.initialY-100)this.y-=this.movement
+                }
+            }
+        }
+    }
+}
+function handelBoss(){
+    for(let i = 0; i < bosses.length; i++){
+        bosses[i].draw()
+        bosses[i].update()
+        if(!bosses[i].dying)bosses[i].movement=1 
+        for(let j = 0; j < defenders.length; j++){
+            if(bosses[i]&& defenders[j] && collisian( bosses[i], defenders[j])){
+                bosses[i].fight=true
+                defenders[j].health -= 4;
+                if(defenders[j].type==='warrior') bosses[i].health -=0.2
+                defenders[j].fight=true
+                if(defenders[j].health <=0){
+                defenders.splice(j, 1)
+                j--;
+                }
+            }else{
+                //bosses[i].fight=false
+            }
+            //if(bosses[i].health<=0)defenders[j].fight=false
+        }
+        if(bosses[i] && bosses[i].x < 0){
+            gameOver = true;
+        }
+        if(bosses[i] && bosses[i].health <= 0){
+            bosses[i].dying=true
+            bossDie.play()
+            bosses.splice(i,1)
+            i--
+        }
+    }
+}
 //отменяем дефолтное поведение мышки(райтклик)
 document.oncontextmenu = rightClick; 
         function rightClick(clickEvent) { 
@@ -959,6 +1138,8 @@ function skipBrif(){
         canvas2.remove()
         canvas3.remove()
         document.getElementById('skipDiv').style.visibility='hidden'
+        document.getElementById('help').style.visibility='visible'
+        toggleInfo()
     }
     document.getElementById('skipDiv').style.visibility='hidden'
 }
@@ -1026,8 +1207,8 @@ function mage(){ //функция называется маг, но отвеча
     setTimeout(() => { if(!skipBriffing)act3=true },15000);
     setTimeout(() => { act3=false },19000);
     setTimeout(() => { if(!skipBriffing)act4=true},21000);
-    setTimeout(() => { if(!skipBriffing)act5=true},23000);
-    setTimeout(() => { if(act5)typeText()},24000);
+    setTimeout(() => { if(!skipBriffing)act5=true},23000);//23000
+    setTimeout(() => { if(act5)typeText()},24000);//24000
     setTimeout(() => { if(act5)document.getElementById('skipDiv').style.visibility='visible'},39000);
 }
 
@@ -1062,14 +1243,16 @@ function typeOut(str, a,b,c, g) {
 }
 function typeText() {
     ctx3.fillStyle = '#000000';
-    ctx3.font = '24px Yusei Magic';
-    var str = `Your Highness ...                    I've just had some disturbing reports... \n The Orcs army has appeared at the borders. \n Tomorrow they will be on South Bridge. \n We need to hurry. `;
-    typeOut(str);
+    ctx3.font = '24px Pangolin';
+    //var str = `Your Highness ...                    I've just had some disturbing reports... \n The Orcs army has appeared at the borders. \n Tomorrow they will be on South Bridge. \n We need to hurry. `;
+    var str = `Ваше величество ...                                 До меня дошли тревожные известия. Разведчики докладывают о появлении армии орков возле наших границ... Завтра они будут на Южном Мосту. \n Мы должны поспешить. `;
+    typeOut(str); 
 };
 function typeText2() {
     ctx3.fillStyle = '#000000';
-    ctx3.font = '24px Yusei Magic';
+    ctx3.font = '24px Pangolin';
     var str2 =`Your Highness ...  we are just in time.    They are about to be here. You must lead the defense. Construct a building and place archers on positions.                            Our lives are in your hands.`
+    var str2 =`Ваше величество ...   мы успели.                             Орки вот-вот будут здесь. Чем быстрее вы возглавите оборону, тем лучше. Важно успеть возвести сооружения и расставить стрелков на позиции. Судьба королевства в ваших руках.`
     typeOut(str2, 290, 210, 830, 20 );
 }
 
@@ -1087,4 +1270,13 @@ function clouds(){
 function selectBuilding(type){
     buildingType=type
     document.getElementById('buildings').style.visibility='hidden'
+}
+let help = document.getElementById('help')
+    help.style.left = `${audioplayerPositionleft-50}px`;
+    help.style.top = `${audioplayerPositionTop-100}px`;
+function toggleInfo(){
+    gamePaused=!gamePaused
+    if(gamePaused)document.getElementById('info').style.visibility='visible'
+    if(!gamePaused)document.getElementById('info').style.visibility='hidden', startAnimating(60);
+
 }

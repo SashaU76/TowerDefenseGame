@@ -15,7 +15,7 @@ let score=0
 let numberOfResources=900
 let enemiesInterval=600
 let gameOver = false
-let winningScore = 8000
+let winningScore = 7500
 let adjust=100
 let cellLimiter=5
 let activeMenuCell=undefined
@@ -638,7 +638,7 @@ function handleEnimies(){
             ||enemies[i].type==='orc'&& !enemies[i].fight &&enemies[i].frame==-2
             ||enemies[i].type==='orc'&& enemies[i].fight &&enemies[i].frame==38){
                 let gainedResources = enemies[i].maxHealth/5
-                if(score>3000)gainedResources=30
+                if(score>3000)gainedResources=25
                 const findThisPosition = enemyPosition.indexOf(enemies[i].y+adjust)
                 numberOfResources+=gainedResources
                 score+=gainedResources
@@ -946,7 +946,7 @@ class Boss {
         this.initialY=this.y
         this.width = cellSize*2;
         this.height = cellSize*2;
-        this.health = 8000;
+        this.health = 10000;
         this.frame=0;
         this.timer=0;
         this.frameHeight=510;

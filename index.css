@@ -34,8 +34,9 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 1500px;
-  height: 940px;
+  width: 100vw;
+  max-width: 1500px;
+  height: 100vh;
   background-image: url(img/background2.png);
   background-size: 100% 100%;
   visibility: hidden;
@@ -92,8 +93,9 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 1500px;
-  height: 940px;
+  width: 100vw;
+  max-width: 1500px;
+  height: 100vh;
   background-image: url(img/Cartoon_Forest_BG_02.png);
   background-size: 100% 100%;
   visibility: hidden;
@@ -104,8 +106,9 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 1500px;
-  height: 940px;
+  width: 100vw;
+  max-width: 1500px;
+  height: 100vh;
   background: transparent;
   background-size: 100% 100%;
   z-index: 10;
@@ -116,8 +119,9 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 3000px;
-  height: 940px;
+  width: 100vw;
+  max-width: 1500px;
+  height: 100vh;
   background: transparent;
   background-size: 100% 100%;
   z-index: 9;

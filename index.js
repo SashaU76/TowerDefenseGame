@@ -942,7 +942,7 @@ const bosses=[]
 class Boss {
     constructor(){
         this.x = canvas.width-200;
-        this.y = 500;
+        this.y = 400;
         this.initialY=this.y
         this.width = cellSize*2;
         this.height = cellSize*2;
@@ -1001,7 +1001,7 @@ class Boss {
         }else{
             if(this.fight){
                 this.walking=false
-                this.initialY=this.y; if(this.initialY>600)this.initialY=300;if(this.initialY<200)this.initialY=400
+                if(this.initialY>600)this.initialY=300;if(this.initialY<200)this.initialY=400
                 this.direction=Math.random()
             }else{
                 if(this.x>800 && this.timer===0)this.x-=this.movement              //step1

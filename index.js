@@ -4,7 +4,10 @@ const canvas = document.getElementById('canvas1');
 const ctx = canvas.getContext('2d');
 canvas.width=canvas.offsetWidth;
 canvas.height=canvas.offsetHeight;
-
+//let coefficientW=canvas.width/1500
+//let coefficientH=canvas.height/940
+//canvas.width=1500;
+//canvas.height=940;
 
 //global variables
 
@@ -212,6 +215,7 @@ class Cell {
         this.y = y;
         this.width = cellSize;
         this.height = cellSize;
+        //if(canvas.height<940)this.height = cellSize*coefficientH;
         this.type=isHead
     }
     draw(){
@@ -404,6 +408,7 @@ class Defender {
     }
 }
 canvas.addEventListener('click', function(e){
+    console.log(Math.floor(cellSize*(canvas.height/940)));
     const gridPositionX = mouse.x - (mouse.x % cellSize);
     const gridPositionY = mouse.y - (mouse.y % cellSize);
     //console.log(gridPositionX,gridPositionY);
@@ -457,7 +462,8 @@ canvas.addEventListener('click', function(e){
         if(mouse.x>840&& mouse.x<940)activeMenuCell=2, document.getElementById('buildings').style.visibility='visible'
         if(mouse.x>960&& mouse.x<1060)activeMenuCell=3
         if(mouse.x>480&& mouse.x<580)activeMenuCell=-1
-        if(gridPositionX==1400){toggleSlider()}
+        //if(gridPositionX==1400){toggleSlider()}
+        if(gridPositionX==Math.floor((canvas.width-50)/100)*100){toggleSlider()}
     }
     if(activeMenuCell===2){ // если выбрано здание 
         for(let i=0; i < greaterArray; i++){
@@ -847,7 +853,7 @@ function header(){
     ctx.drawImage(warrior, 0, 0, 297, 367, 740, 30, 60,70)
     if(towers.length>0)ctx.drawImage(mageSprite, 0, 720,  720, 720, 971, 27, 75,75)
     ctx.drawImage(delBtn, 0, 0, 900, 900, 510, 40, 45, 45)
-    ctx.drawImage(musicBtn, 0, 0, 128, 128, 1410, 30, 55, 55)
+    ctx.drawImage(musicBtn, 0, 0, 128, 128, Math.floor((canvas.width-50)/100)*100, 30, 55, 55)
     if(activeMenuCell!=2)document.getElementById('buildings').style.visibility='hidden'//скрываем меню зданий
     if(activeMenuCell!=undefined){
         if(activeMenuCell!=-1){
@@ -877,12 +883,12 @@ function header(){
 
 window.addEventListener('resize', function(){
     canvasPosition = canvas.getBoundingClientRect();
-    audioplayerPositionleft=canvasPosition.right - 120
+    audioplayerPositionleft=canvas.width - 120
     audioplayerPositionTop=canvasPosition.top +130
     audioplayer.style.left = `${audioplayerPositionleft}px`;
     audioplayer.style.top = `${audioplayerPositionTop}px`;
     help.style.left = `${audioplayerPositionleft-50}px`;
-    help.style.top = `${audioplayerPositionTop-100}px`;
+    help.style.top = `${audioplayerPositionTop-93}px`;
     /* fogWrapper.style.left = `${audioplayerPositionleft}px`;
     fogWrapper.style.top=canvasPosition.y
     */
@@ -1273,7 +1279,7 @@ function selectBuilding(type){
 }
 let help = document.getElementById('help')
     help.style.left = `${audioplayerPositionleft-50}px`;
-    help.style.top = `${audioplayerPositionTop-100}px`;
+    help.style.top = `${audioplayerPositionTop-93}px`;
 function toggleInfo(){
     gamePaused=!gamePaused
     if(gamePaused)document.getElementById('info').style.visibility='visible'

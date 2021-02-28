@@ -37,6 +37,7 @@ body {
   width: 100vw;
   max-width: 1500px;
   height: 100vh;
+  max-height: 940px;
   background-image: url(img/background2.png);
   background-size: 100% 100%;
   visibility: hidden;
@@ -96,6 +97,7 @@ body {
   width: 100vw;
   max-width: 1500px;
   height: 100vh;
+  max-height: 940px;
   background-image: url(img/Cartoon_Forest_BG_02.png);
   background-size: 100% 100%;
   visibility: hidden;
@@ -109,6 +111,7 @@ body {
   width: 100vw;
   max-width: 1500px;
   height: 100vh;
+  max-height: 940px;
   background: transparent;
   background-size: 100% 100%;
   z-index: 10;
@@ -122,6 +125,7 @@ body {
   width: 100vw;
   max-width: 1500px;
   height: 100vh;
+  max-height: 940px;
   background: transparent;
   background-size: 100% 100%;
   z-index: 9;

@@ -1250,15 +1250,15 @@ function typeOut(str, a,b,c, g) {
 function typeText() {
     ctx3.fillStyle = '#000000';
     ctx3.font = '24px Pangolin';
-    //var str = `Your Highness ...                    I've just had some disturbing reports... \n The Orcs army has appeared at the borders. \n Tomorrow they will be on South Bridge. \n We need to hurry. `;
-    var str = `Ваше величество ...                                 До меня дошли тревожные известия. Разведчики докладывают о появлении армии орков возле наших границ... Завтра они будут на Южном Мосту. \n Мы должны поспешить. `;
+    var str = `Your Highness ...                                     I've just had some disturbing reports... \n The Orcs army has appeared at the borders. \n Tomorrow they will be on South Bridge. \n We need to hurry. `;
+    //var str = `Ваше величество ...                                 До меня дошли тревожные известия. Разведчики докладывают о появлении армии орков возле наших границ... Завтра они будут на Южном Мосту. \n Мы должны поспешить. `;
     typeOut(str); 
 };
 function typeText2() {
     ctx3.fillStyle = '#000000';
     ctx3.font = '24px Pangolin';
     var str2 =`Your Highness ...  we are just in time.    They are about to be here. You must lead the defense. Construct a building and place archers on positions.                            Our lives are in your hands.`
-    var str2 =`Ваше величество ...   мы успели.                             Орки вот-вот будут здесь. Чем быстрее вы возглавите оборону, тем лучше. Важно успеть возвести сооружения и расставить стрелков на позиции. Судьба королевства в ваших руках.`
+    //var str2 =`Ваше величество ...   мы успели.                             Орки вот-вот будут здесь. Чем быстрее вы возглавите оборону, тем лучше. Важно успеть возвести сооружения и расставить стрелков на позиции. Судьба королевства в ваших руках.`
     typeOut(str2, 290, 210, 830, 20 );
 }
 

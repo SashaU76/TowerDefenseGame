@@ -14,7 +14,7 @@
 <body>
     <div id=start><button id=startBtn onclick="start()">Start</button></div>
     
-    <div id='nextday1'><div id='nextday'>на следующее утро</div></div>
+    <div id='nextday1'><div id='nextday'>on next day</div></div>
     <button id="looseBtn" onclick="initialState()">I can do better</button>
     <canvas id="canvas1"></canvas>
     <div class="briffing">
@@ -23,7 +23,7 @@
     </div>
     <div id='skipDiv' onclick="skipBrif()">ok </div>
     <div id='info' onclick="toggleInfo()">
-        <h3>Подсказка</h3>
+        <!-- <h3>Подсказка</h3>
         <div id="infoText">
             Если орки проидут до конца моста эльфийский город падет.<br/>
             У вас есть 3 типа войск: <br />
@@ -35,6 +35,20 @@
             Здания: <br />
             <li><b>дом</b> - приносит деньги (чтобы собрать налоги наведите на монетку над домом)</li>
             <li><b> башня мага</b> - построив ее вы сможете нанять мага</li>
+        </div> -->
+        <h3>Help</h3>
+        <div id="infoText">
+            If the orcs make it to the end of the bridge, the elven city will fall.<br />
+            You have 3 types of troops: <br />
+            archers </b> - low health, shoot. </li>
+            <li> <b> wars </b> - a lot of health, close combat. </li>
+            <li> <b> mage </b> - casts a magic barrier that stops the enemy and deals small damage. <br /> </li>
+            To cast a barrier, press the right mouse button and then left button above the place where you want to place the barrier
+            <br />
+            To remove a building/warrior or <b> undo a spell </b> use the cross in the top panel. <br />
+            Buildings: <br />
+            <li> <b> house </b> - brings money (to collect taxes, hover over a coin above the house) </li>
+            <li> <b> mage tower </b> - mage can live here </li>
         </div>
     </div>
     <div id='buildings'>
